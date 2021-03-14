@@ -1,0 +1,20 @@
+{
+  "name": "@chessdb.biz/janus",
+  "version": "0.0.1-alpha",
+  "description": "Monorepo package with the Janus source, including tests, transpilations to other languages, and documentation.",
+  "main": "index.js",
+  "author": "John Davis",
+  "license": "MIT",
+  "scripts": {
+    "bootstrap": "lerna bootstrap",
+    "build": "lerna run build",
+    "clean": "lerna run clean",
+    "test": "lerna run test",
+    "release": "yarn run bootstrap && yarn run build && yarn run test"
+  },
+  "private": true,
+  "devDependencies": {
+    "lerna": "^3.22.1"
+  },
+  "dotnet-version": {}
+}
