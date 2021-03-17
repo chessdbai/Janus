@@ -103,6 +103,9 @@ namespace Janus.Capacity.Servers
             return response.Reservation.Instances.Select(i => new LaunchedCapacity()
             {
                 InstanceId = i.InstanceId,
+                AvailabilityZone = az.Az,
+                LaunchTime = i.LaunchTime,
+                InstanceType = i.InstanceType.Value,
             }).ToList();
         }
     }

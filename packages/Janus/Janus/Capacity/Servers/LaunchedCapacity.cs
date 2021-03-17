@@ -24,6 +24,11 @@ namespace Janus.Capacity.Servers
         public string InstanceType { get; set; }
 
         /// <summary>
+        /// Gets or sets the availability zone where the instance was launched.
+        /// </summary>
+        public string AvailabilityZone { get; set; }
+
+        /// <summary>
         /// Gets or sets the launch time.
         /// </summary>
         public DateTime LaunchTime { get; set; }

@@ -97,7 +97,7 @@ namespace Janus
                 Region = RegionEndpoint.USEast2,
             };
 
-            string stage = Environment.GetEnvironmentVariable("JANUS_STAGE") ?? "beta";
+            string stage = Environment.GetEnvironmentVariable("JANUS_STAGE") ?? "prod";
             return new CloudConfig()
             {
                 Stage = stage,

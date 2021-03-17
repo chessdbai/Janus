@@ -19,8 +19,17 @@ namespace Janus.Config
     /// </summary>
     public class CachingAppConfigRetriever : IConfigRetriever
     {
-        private const string ConfigAppName = "Janus";
+        /// <summary>
+        /// The options to use when deserializing the config.
+        /// </summary>
+        internal static readonly JsonSerializerOptions SerializerOptions = new JsonSerializerOptions()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        };
+
+        private const string ConfigAppName = "JanusTemp";
         private const string ConfigCacheKey = "config";
+
         private readonly IMemoryCache cache;
         private readonly IAmazonAppConfig appConfig;
         private readonly string stage;
@@ -63,12 +72,13 @@ namespace Janus.Config
                 Application = ConfigAppName,
                 Environment = this.stage,
                 Configuration = "OperationalSettings",
+                ClientId = "janus-dotnet",
             };
             var response = await this.appConfig.GetConfigurationAsync(get);
             using var content = response.Content;
             using var reader = new StreamReader(content);
             string json = await reader.ReadToEndAsync();
-            return JsonSerializer.Deserialize<JanusConfig>(json);
+            return JsonSerializer.Deserialize<JanusConfig>(json, SerializerOptions);
         }
     }
 }
