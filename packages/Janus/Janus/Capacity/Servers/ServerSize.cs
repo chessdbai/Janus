@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Janus.Capacity
+namespace Janus.Capacity.Servers
 {
     /// <summary>
     /// Different launchable server sizes.

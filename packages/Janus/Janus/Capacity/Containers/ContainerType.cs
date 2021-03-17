@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Janus.Capacity
+namespace Janus.Capacity.Containers
 {
     /// <summary>
     /// The type of container.

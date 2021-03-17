@@ -6,11 +6,10 @@
 
 namespace Janus.Controllers
 {
-    using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
-    using Janus.Capacity;
+    using Janus.Capacity.Containers;
+    using Janus.Capacity.Servers;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Logging;
 
@@ -20,23 +19,23 @@ namespace Janus.Controllers
     [ApiController]
     public class CapacityManagementController : ControllerBase
     {
-        private readonly IServerLauncher serverLauncher;
-        private readonly IContainerLauncher containerLauncher;
+        private readonly IServerManager serverManager;
+        private readonly IContainerManager containerManager;
         private readonly ILogger<CapacityManagementController> logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CapacityManagementController"/> class.
         /// </summary>
-        /// <param name="serverLauncher">The server launcher.</param>
-        /// <param name="containerLauncher">The container launcher.</param>
+        /// <param name="serverManager">The server launcher.</param>
+        /// <param name="containerManager">The container launcher.</param>
         /// <param name="logger">The logger.</param>
         public CapacityManagementController(
-            IServerLauncher serverLauncher,
-            IContainerLauncher containerLauncher,
+            IServerManager serverManager,
+            IContainerManager containerManager,
             ILogger<CapacityManagementController> logger)
         {
-            this.serverLauncher = serverLauncher;
-            this.containerLauncher = containerLauncher;
+            this.serverManager = serverManager;
+            this.containerManager = containerManager;
             this.logger = logger;
         }
 
@@ -46,7 +45,7 @@ namespace Janus.Controllers
         /// <returns>The list of weather forecasts.</returns>
         [HttpPost]
         [Route("/capacity")]
-        public async Task<IEnumerable<LaunchedCapacity>> PostAsync() => await this.serverLauncher
+        public async Task<IEnumerable<LaunchedCapacity>> PostAsync() => await this.serverManager
             .LaunchServersAsync(
                 ServerType.CPU,
                 ServerSize.Small,
@@ -55,10 +54,11 @@ namespace Janus.Controllers
         /// <summary>
         /// Gets the weather forecasts.
         /// </summary>
+        /// <param name="instanceId">The instance id.</param>
         /// <returns>The list of weather forecasts.</returns>
         [HttpPut]
-        [Route("/capacity")]
-        public async Task<string> PutAsync() => await this.containerLauncher
+        [Route("/capacity/{instanceId}")]
+        public async Task<string> PutAsync([FromRoute] string instanceId) => await this.containerManager
             .LaunchEngineContainerAsync(
                 new ContainerScale()
                 {

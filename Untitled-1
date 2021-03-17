@@ -1,0 +1,19 @@
+{
+  "serverOptions": {
+    "ami": "ami-0bbee170ac3055ded",
+    "availabilityZones": [
+      {
+        "az": "us-east-2b",
+        "subnetId": "subnet-09d03c648f8165683"
+      }
+    ],
+    "instanceProfile": "arn:aws:iam::541249553451:instance-profile/ManagedInstance",
+    "cpuServerTypes": [
+      "m5zn.large"
+    ],
+    "gpuServerTypes": [
+      "p3.2xlarge"
+    ],
+    "tablebaseSnapshot": "snap-01965aa39dc821be8"
+  }
+}

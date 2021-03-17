@@ -1,10 +1,10 @@
 // -----------------------------------------------------------------------
-// <copyright file="DockerContainerLauncher.cs" company="ChessDB.AI">
+// <copyright file="DockerContainerManager.cs" company="ChessDB.AI">
 // MIT Licensed.
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Janus.Capacity
+namespace Janus.Capacity.Containers
 {
     using System;
     using System.Collections.Generic;
@@ -13,39 +13,50 @@ namespace Janus.Capacity
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
+    using Amazon.EC2;
+    using Amazon.EC2.Model;
     using Amazon.ECR;
     using Amazon.ECR.Model;
     using Docker.DotNet;
     using Docker.DotNet.Models;
+    using Janus.Config;
     using Microsoft.Extensions.Logging;
 
     /// <summary>
-    /// A DockerContainerLauncher class.
+    /// A DockerContainerManager class.
     /// </summary>
-    public class DockerContainerLauncher : IContainerLauncher
+    public class DockerContainerManager : IContainerManager
     {
         private const string ImageId = "939bc060017a";
         private const ushort ContainerPort = 5000;
         private const string GpuRuntime = "nvidia";
         private const string TablebaseLocation = "/tablebase";
 
+        private readonly CloudConfig config;
+        private readonly IAmazonEC2 ec2;
         private readonly IAmazonECR ecr;
-        private readonly ILogger<DockerContainerLauncher> logger;
+        private readonly ILogger<DockerContainerManager> logger;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DockerContainerLauncher"/> class.
+        /// Initializes a new instance of the <see cref="DockerContainerManager"/> class.
         /// </summary>
+        /// <param name="config">The Cloud Config.</param>
+        /// <param name="ec2">The EC2 client.</param>
         /// <param name="ecr">The ECR client.</param>
         /// <param name="logger">The logger.</param>
-        public DockerContainerLauncher(
+        public DockerContainerManager(
+            CloudConfig config,
+            IAmazonEC2 ec2,
             IAmazonECR ecr,
-            ILogger<DockerContainerLauncher> logger)
+            ILogger<DockerContainerManager> logger)
         {
+            this.config = config;
+            this.ec2 = ec2;
             this.ecr = ecr;
             this.logger = logger;
         }
 
-        /// <inheritdoc cref="IContainerLauncher" />
+        /// <inheritdoc cref="IContainerManager" />
         public async Task<string> LaunchEngineContainerAsync(ContainerScale scale, string destinationHostIp)
         {
             var docker = this.CreateClientFromHost(destinationHostIp);
@@ -101,5 +112,39 @@ namespace Janus.Capacity
                 },
             },
         };
+
+        private async Task<string> GetIpFromInstanceAsync(string instanceId)
+        {
+            var instanceReq = new DescribeInstancesRequest()
+            {
+                InstanceIds = new List<string>()
+                {
+                    instanceId,
+                },
+            };
+            var instanceRes = await this.ec2.DescribeInstancesAsync(instanceReq);
+            var reservation = instanceRes.Reservations.FirstOrDefault();
+            if (reservation == null)
+            {
+                throw new ArgumentException($"No instance found with id '{instanceId}'.");
+            }
+
+            var instance = reservation.Instances.FirstOrDefault();
+            if (instance == null)
+            {
+                throw new ArgumentException($"No instance found with id '{instanceId}'.");
+            }
+
+            if (this.config.IsInCloud)
+            {
+                var iface = instance.NetworkInterfaces.First();
+                var ipv6 = iface.Ipv6Addresses.FirstOrDefault()?.Ipv6Address;
+                return ipv6 ?? instance.PrivateIpAddress;
+            }
+            else
+            {
+                return instance.PublicIpAddress;
+            }
+        }
     }
 }

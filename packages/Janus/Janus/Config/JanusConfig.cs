@@ -1,19 +1,19 @@
 // -----------------------------------------------------------------------
-// <copyright file="LaunchedCapacity.cs" company="ChessDB.AI">
+// <copyright file="JanusConfig.cs" company="ChessDB.AI">
 // MIT Licensed.
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Janus.Capacity
+namespace Janus.Config
 {
     /// <summary>
-    /// A LaunchedCapacity class.
+    /// A JanusConfig class.
     /// </summary>
-    public record LaunchedCapacity
+    public class JanusConfig
     {
         /// <summary>
-        /// Gets or sets the instance id.
+        /// Gets or sets the options to use when launching servers.
         /// </summary>
-        public string InstanceId { get; set; }
+        public ServerOptions ServerOptions { get; set; }
     }
 }

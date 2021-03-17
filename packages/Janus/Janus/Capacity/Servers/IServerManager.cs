@@ -1,10 +1,10 @@
 // -----------------------------------------------------------------------
-// <copyright file="IServerLauncher.cs" company="ChessDB.AI">
+// <copyright file="IServerManager.cs" company="ChessDB.AI">
 // MIT Licensed.
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Janus.Capacity
+namespace Janus.Capacity.Servers
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
@@ -12,7 +12,7 @@ namespace Janus.Capacity
     /// <summary>
     /// Required methods to satisfy being a ServerLauncher.
     /// </summary>
-    public interface IServerLauncher
+    public interface IServerManager
     {
         /// <summary>
         /// Launch one or more servers with the specified properties.

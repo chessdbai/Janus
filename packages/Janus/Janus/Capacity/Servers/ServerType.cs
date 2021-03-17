@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Janus.Capacity
+namespace Janus.Capacity.Servers
 {
     /// <summary>
     /// Different types of capacity we should be able to launch.

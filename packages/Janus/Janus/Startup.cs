@@ -6,13 +6,18 @@
 
 namespace Janus
 {
+    using System;
     using Amazon;
+    using Amazon.AppConfig;
     using Amazon.EC2;
     using Amazon.ECR;
     using Amazon.Extensions.NETCore.Setup;
     using Amazon.Runtime;
     using Amazon.Runtime.CredentialManagement;
     using Janus.Capacity;
+    using Janus.Capacity.Containers;
+    using Janus.Capacity.Servers;
+    using Janus.Config;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Configuration;
@@ -43,12 +48,17 @@ namespace Janus
         /// <param name="services">The service collection.</param>
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDefaultAWSOptions(CreateAWSOptions());
+            var cloudConfig = CreateCloudConfig();
+            services.AddSingleton(cloudConfig);
+            services.AddDefaultAWSOptions(cloudConfig.Options);
             services.AddAWSService<IAmazonEC2>();
             services.AddAWSService<IAmazonECR>();
+            services.AddAWSService<IAmazonAppConfig>();
 
-            services.AddSingleton<IServerLauncher, EC2ServerLauncher>();
-            services.AddSingleton<IContainerLauncher, DockerContainerLauncher>();
+            services.AddSingleton<IServerManager, EC2ServerManager>();
+            services.AddSingleton<IContainerManager, DockerContainerManager>();
+            services.AddMemoryCache();
+            services.AddSingleton<IConfigRetriever, CachingAppConfigRetriever>();
 
             services.AddControllers();
         }
@@ -64,9 +74,10 @@ namespace Janus
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
 
-        private static AWSOptions CreateAWSOptions()
+        private static CloudConfig CreateCloudConfig()
         {
             AWSCredentials credentials;
+            bool isInAws = false;
 
             var chain = new CredentialProfileStoreChain();
             AWSCredentials awsCredentials;
@@ -77,12 +88,21 @@ namespace Janus
             else
             {
                 credentials = FallbackCredentialsFactory.GetCredentials();
+                isInAws = true;
             }
 
-            return new AWSOptions()
+            var options = new AWSOptions()
             {
                 Credentials = credentials,
                 Region = RegionEndpoint.USEast2,
+            };
+
+            string stage = Environment.GetEnvironmentVariable("JANUS_STAGE") ?? "beta";
+            return new CloudConfig()
+            {
+                Stage = stage,
+                Options = options,
+                IsInCloud = isInAws,
             };
         }
     }

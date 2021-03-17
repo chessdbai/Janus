@@ -8,20 +8,24 @@
     "build": "tsc",
     "watch": "tsc -w",
     "test": "jest",
-    "cdk": "cdk"
+    "bootstrap": "./scripts/bootstrap.sh",
+    "deploy": "./scripts/deploy.sh"
   },
   "devDependencies": {
-    "@aws-cdk/assert": "1.93.0",
+    "@aws-cdk/assert": "1.94.1",
     "@types/jest": "^26.0.10",
     "@types/node": "10.17.27",
-    "aws-cdk": "1.93.0",
+    "aws-cdk": "1.94.1",
     "jest": "^26.4.2",
     "ts-jest": "^26.2.0",
-    "ts-node": "^9.0.0",
-    "typescript": "~3.9.7"
+    "ts-node": "^9.0.0"
   },
   "dependencies": {
-    "@aws-cdk/core": "1.93.0",
-    "source-map-support": "^0.5.16"
+    "@aws-cdk/aws-appconfig": "1.94.1",
+    "@aws-cdk/core": "1.94.1",
+    "@aws-cdk/pipelines": "^1.94.1",
+    "@chessdb.biz/zeus-accounts": "^0.45.0",
+    "source-map-support": "^0.5.16",
+    "typescript": "^4.2.3"
   }
 }

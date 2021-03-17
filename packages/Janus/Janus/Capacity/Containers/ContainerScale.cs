@@ -5,7 +5,7 @@
 // -----------------------------------------------------------------------
 
 #pragma warning disable SA1623
-namespace Janus.Capacity
+namespace Janus.Capacity.Containers
 {
     /// <summary>
     /// A ContainerScale class.

@@ -1,33 +1,41 @@
 // -----------------------------------------------------------------------
-// <copyright file="EC2ServerLauncher.cs" company="ChessDB.AI">
+// <copyright file="EC2ServerManager.cs" company="ChessDB.AI">
 // MIT Licensed.
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Janus.Capacity
+namespace Janus.Capacity.Servers
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using Amazon.EC2;
     using Amazon.EC2.Model;
+    using Janus.Config;
     using Microsoft.Extensions.Logging;
 
     /// <summary>
-    /// A EC2ServerLauncher class.
+    /// A Ec2ServerManager class.
     /// </summary>
-    public class EC2ServerLauncher : IServerLauncher
+    public class EC2ServerManager : IServerManager
     {
+        private readonly IConfigRetriever configRetriever;
         private readonly IAmazonEC2 ec2;
-        private readonly ILogger<EC2ServerLauncher> logger;
+        private readonly ILogger<EC2ServerManager> logger;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="EC2ServerLauncher"/> class.
+        /// Initializes a new instance of the <see cref="EC2ServerManager"/> class.
         /// </summary>
+        /// <param name="configRetriever">The config retriever.</param>
         /// <param name="ec2">The EC2 API client.</param>
         /// <param name="logger">The logger.</param>
-        public EC2ServerLauncher(IAmazonEC2 ec2, ILogger<EC2ServerLauncher> logger)
+        public EC2ServerManager(
+            IConfigRetriever configRetriever,
+            IAmazonEC2 ec2,
+            ILogger<EC2ServerManager> logger)
         {
+            this.configRetriever = configRetriever;
             this.ec2 = ec2;
             this.logger = logger;
         }
@@ -55,23 +63,26 @@ namespace Janus.Capacity
             }
         }
 
-        /// <inheritdoc cref="IServerLauncher" />
+        /// <inheritdoc cref="IServerManager" />
         public async Task<List<LaunchedCapacity>> LaunchServersAsync(ServerType type, ServerSize size, int quantity)
         {
+            var random = new Random();
+            var config = (await this.configRetriever.RetrieveConfigAsync()).ServerOptions;
+            var az = config.AvailabilityZones[random.Next(0, config.AvailabilityZones.Count)];
             var request = new RunInstancesRequest()
             {
                 MinCount = 1,
                 MaxCount = 1,
                 Placement = new Placement()
                 {
-                    AvailabilityZone = "us-east-2b",
+                    AvailabilityZone = az.Az,
                 },
-                SubnetId = "subnet-09d03c648f8165683",
-                ImageId = "ami-0bbee170ac3055ded",
+                SubnetId = az.SubnetId,
+                ImageId = config.Ami,
                 Monitoring = true,
                 IamInstanceProfile = new IamInstanceProfileSpecification()
                 {
-                    Arn = "arn:aws:iam::541249553451:instance-profile/ManagedInstance",
+                    Arn = config.InstanceProfile,
                 },
                 InstanceType = InstanceTypeFromServerTypeAndSize(type, size),
                 SecurityGroupIds = new List<string>(new[] { "sg-05aad9a19aa99f7fd", }),
@@ -82,7 +93,7 @@ namespace Janus.Capacity
                         DeviceName = "/dev/sdf",
                         Ebs = new EbsBlockDevice()
                         {
-                            SnapshotId = "snap-01965aa39dc821be8",
+                            SnapshotId = config.TablebaseSnapshotId,
                             VolumeType = VolumeType.Gp2,
                         },
                     },

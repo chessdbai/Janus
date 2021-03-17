@@ -4,6 +4,7 @@ packages/**/node_modules
 packages/**/bin
 packages/**/obj
 packages/**/dist
+!packages/infrastructure/bin
 packages/infrastructure/cdk.out
 packages/projects/**/node_modules
 packages/projects/**/bin
