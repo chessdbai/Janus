@@ -65,6 +65,7 @@ const synthezier = new cdk.DefaultStackSynthesizer({
         rolePolicyStatements: [
           new iam.PolicyStatement({
             actions: [
+              "sts:GetServiceBearerToken",
               "codeartifact:GetPackageVersionReadme",
               "codeartifact:GetAuthorizationToken",
               "codeartifact:DescribeRepository",
