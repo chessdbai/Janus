@@ -60,8 +60,8 @@ const synthezier = new cdk.DefaultStackSynthesizer({
       synthAction: pipelines.SimpleSynthAction.standardNpmSynth({
         sourceArtifact,
         cloudAssemblyArtifact,
+        installCommand: 'npm i -g lerna && npm i',
         buildCommand: 'npm run build',
-        installCommand: 'npm run bootstrap',
         rolePolicyStatements: [
           new iam.PolicyStatement({
             actions: [
