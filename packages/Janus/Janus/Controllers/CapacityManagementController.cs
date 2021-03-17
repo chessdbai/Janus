@@ -40,12 +40,21 @@ namespace Janus.Controllers
         }
 
         /// <summary>
-        /// Gets the weather forecasts.
+        /// Gets the list of launched servers.
         /// </summary>
-        /// <returns>The list of weather forecasts.</returns>
+        /// <param name="serverType">The type of server.</param>
+        /// <returns>The list of servers.</returns>
+        [HttpGet]
+        [Route("/capacity")]
+        public async Task<IEnumerable<LaunchedCapacity>> GetAsync([FromQuery] ServerType? serverType) => await this.serverManager.ListServersAsync(serverType);
+
+        /// <summary>
+        /// Launches additional servers.
+        /// </summary>
+        /// <returns>The list of launched capacity.</returns>
         [HttpPost]
         [Route("/capacity")]
-        public async Task<IEnumerable<LaunchedCapacity>> PostAsync() => await this.serverManager
+        public async Task<IEnumerable<LaunchedCapacity>> LaunchServersAsync() => await this.serverManager
             .LaunchServersAsync(
                 ServerType.CPU,
                 ServerSize.Small,
@@ -56,9 +65,9 @@ namespace Janus.Controllers
         /// </summary>
         /// <param name="instanceId">The instance id.</param>
         /// <returns>The list of weather forecasts.</returns>
-        [HttpPut]
+        [HttpPost]
         [Route("/capacity/{instanceId}")]
-        public async Task<string> PutAsync([FromRoute] string instanceId) => await this.containerManager
+        public async Task<string> StartContainerAsync([FromRoute] string instanceId) => await this.containerManager
             .LaunchEngineContainerAsync(
                 new ContainerScale()
                 {
@@ -67,6 +76,16 @@ namespace Janus.Controllers
                     GPUs = 1,
                     MemoryMegabytes = 1024,
                 },
-                "3.137.191.148");
+                instanceId);
+
+        /// <summary>
+        /// Gets the containers available on the host.
+        /// </summary>
+        /// <param name="instanceId">The instance id.</param>
+        /// <returns>The list of containers.</returns>
+        [HttpGet]
+        [Route("/capacity/{instanceId}")]
+        public async Task<List<LaunchedContainer>> ListContainersAsync([FromRoute] string instanceId) => await this.containerManager
+            .ListContainersAsync(instanceId);
     }
 }

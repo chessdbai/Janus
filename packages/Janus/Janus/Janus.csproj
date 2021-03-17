@@ -6,9 +6,15 @@
         <PackageReference Include="AWSSDK.AppConfig" />
         <PackageReference Include="AWSSDK.EC2" />
         <PackageReference Include="AWSSDK.ECR" />
+        <PackageReference Include="AWSSDK.SimpleSystemsManagement" />
         <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" />
         <PackageReference Include="Docker.DotNet" />
         <PackageReference Include="StyleCop.Analyzers" PrivateAssets="All" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Capacity\Containers\pull_image.sh" />
+      <EmbeddedResource Include="Capacity\Containers\pull_image.sh" />
     </ItemGroup>
 
 </Project>

@@ -14,6 +14,7 @@ namespace Janus
     using Amazon.Extensions.NETCore.Setup;
     using Amazon.Runtime;
     using Amazon.Runtime.CredentialManagement;
+    using Amazon.SimpleSystemsManagement;
     using Janus.Capacity;
     using Janus.Capacity.Containers;
     using Janus.Capacity.Servers;
@@ -53,6 +54,7 @@ namespace Janus
             services.AddDefaultAWSOptions(cloudConfig.Options);
             services.AddAWSService<IAmazonEC2>();
             services.AddAWSService<IAmazonECR>();
+            services.AddAWSService<IAmazonSimpleSystemsManagement>();
             services.AddAWSService<IAmazonAppConfig>();
 
             services.AddSingleton<IServerManager, EC2ServerManager>();

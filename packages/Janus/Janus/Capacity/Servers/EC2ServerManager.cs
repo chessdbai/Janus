@@ -98,6 +98,21 @@ namespace Janus.Capacity.Servers
                         },
                     },
                 },
+                TagSpecifications = new List<TagSpecification>()
+                {
+                    new TagSpecification()
+                    {
+                        ResourceType = ResourceType.Instance,
+                        Tags = new List<Tag>()
+                        {
+                            new Tag()
+                            {
+                                Key = "LaunchedBy",
+                                Value = "Janus",
+                            },
+                        },
+                    },
+                },
             };
             var response = await this.ec2.RunInstancesAsync(request);
             return response.Reservation.Instances.Select(i => new LaunchedCapacity()
@@ -107,6 +122,42 @@ namespace Janus.Capacity.Servers
                 LaunchTime = i.LaunchTime,
                 InstanceType = i.InstanceType.Value,
             }).ToList();
+        }
+
+        /// <inheritdoc cref="IServerManager"/>
+        public async Task<List<LaunchedCapacity>> ListServersAsync(ServerType? type)
+        {
+            var config = await this.configRetriever.RetrieveConfigAsync();
+            var req = new DescribeInstancesRequest()
+            {
+                Filters = new List<Filter>()
+                {
+                    new Filter()
+                    {
+                        Name = "tag:LaunchedBy",
+                        Values = new List<string>()
+                        {
+                            "Janus",
+                        },
+                    },
+                },
+            };
+            if (type != null)
+            {
+                var instanceTypes = type == ServerType.CPU
+                    ? config.ServerOptions.CpuServerTypes
+                    : config.ServerOptions.GpuServerTypes;
+                req.Filters.Add(new Filter()
+                {
+                    Name = "instance-type",
+                    Values = instanceTypes,
+                });
+            }
+
+            var res = await this.ec2.DescribeInstancesAsync(req);
+            return res.Reservations.SelectMany(r => r.Instances)
+                .Select(i => i.ToLaunchedCapacity(config))
+                .ToList();
         }
     }
 }

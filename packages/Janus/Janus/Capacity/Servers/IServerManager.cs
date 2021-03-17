@@ -22,5 +22,12 @@ namespace Janus.Capacity.Servers
         /// <param name="quantity">The quantity.</param>
         /// <returns>The list of launched servers.</returns>
         Task<List<LaunchedCapacity>> LaunchServersAsync(ServerType type, ServerSize size, int quantity);
+
+        /// <summary>
+        /// Returns a list of servers.
+        /// </summary>
+        /// <param name="type">An optional search filter on the type of server.</param>
+        /// <returns>The list of servers.</returns>
+        Task<List<LaunchedCapacity>> ListServersAsync(ServerType? type);
     }
 }

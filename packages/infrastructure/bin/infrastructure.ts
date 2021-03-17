@@ -4,6 +4,7 @@ import * as cdk from '@aws-cdk/core';
 import * as pipelines from '@aws-cdk/pipelines';
 import * as stacks from '../lib';
 import AccountManager, { ZeusServiceAccount, ZeusCorpAccount } from '@chessdb.biz/zeus-accounts';
+import * as iam from '@aws-cdk/aws-iam';
 import * as codepipeline from '@aws-cdk/aws-codepipeline';
 import * as codepipeline_actions from '@aws-cdk/aws-codepipeline-actions';
 
@@ -60,6 +61,24 @@ const synthezier = new cdk.DefaultStackSynthesizer({
         sourceArtifact,
         cloudAssemblyArtifact,
         buildCommand: 'npm run build',
+        installCommand: 'npm run bootstrap',
+        rolePolicyStatements: [
+          new iam.PolicyStatement({
+            actions: [
+              "codeartifact:GetPackageVersionReadme",
+              "codeartifact:GetAuthorizationToken",
+              "codeartifact:DescribeRepository",
+              "codeartifact:ReadFromRepository",
+              "codeartifact:GetRepositoryEndpoint",
+              "codeartifact:DescribeDomain",
+              "codeartifact:DescribePackageVersion",
+              "codeartifact:GetPackageVersionAsset",
+              "codeartifact:GetRepositoryPermissionsPolicy",
+              "codeartifact:GetDomainPermissionsPolicy"
+            ],
+            resources: ['*']
+          })
+        ]
       }),
     });
 
